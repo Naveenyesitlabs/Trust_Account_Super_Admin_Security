@@ -14,7 +14,7 @@ const Login = () => {
   const [showModal, setShowModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [keepLoggedIn, setKeepLoggedIn] = useState(Boolean(savedEmail));
-  const loggedInUser = sessionStorage.getItem("trust-superAdmin") || localStorage.getItem("trust-superAdmin");
+  const loggedInUser = sessionStorage.getItem("trust-superAdmin");
 
   useEffect(() => {
     if (loggedInUser) setShowModal(true);
@@ -149,3 +149,4 @@ const Login = () => {
 };
 
 export default Login;
+

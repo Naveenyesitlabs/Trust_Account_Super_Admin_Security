@@ -143,7 +143,7 @@ const authSlice = createSlice({
 
         if (typeof window != "undefined") {
           if (action?.payload?.role == "superadmin") {
-            storeAuthSession(action.payload, action.meta.arg?.rememberMe === true);
+            storeAuthSession(action.payload);
           } else {
             toast.error("Invalid Credential");
           }
@@ -169,7 +169,7 @@ const authSlice = createSlice({
         if (normalizeRole(action?.payload?.user?.role) !== "superadmin") {
           toast.error("session expired, please login again!");
           clearAuthSession();
-          setTimeout(() => { window.location.href = '/'; }, 1000);
+          setTimeout(() => { window.location.replace('/'); }, 1000);
         }
       })
       .addCase(checkUser.rejected, (state) => {
@@ -200,7 +200,7 @@ const authSlice = createSlice({
           toast.error("session expired, please login again!");
           clearAuthSession();
         }
-        setTimeout(() => { window.location.href = '/'; }, 1000);
+        setTimeout(() => { window.location.replace('/'); }, 1000);
       })
 
       // 🔹 Add Firm
@@ -246,3 +246,4 @@ const authSlice = createSlice({
 });
 
 export default authSlice.reducer;
+
