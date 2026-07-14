@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import CsvDownloader from "react-csv-downloader";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import "rsuite/DateRangePicker/styles/index.css";
 import AccessModal from "../component/AccessModal";
 import AddEditUser from "../component/AddEditUser";
@@ -13,11 +12,9 @@ import PaginationControls from "../component/PaginationControls";
 import Sidebar from "../component/Sidebar";
 import { useDateRangeFilter } from "../hooks/useDateRangeFilter";
 import useSortableData from "../hooks/useSortableData";
-import { checkUser, getAllFirms } from "../redux/slices/adminSlice";
-import { hasAuthSession } from "../utils/authStorage";
+import { getAllFirms } from "../redux/slices/adminSlice";
 
 const UserManagement = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { allFirmsUsers } = useSelector((state) => state.admin);
 
@@ -31,7 +28,6 @@ const UserManagement = () => {
   const [selectedUserToEdit, setSelectedUserToEdit] = useState("");
   const [deleteItemId, setDeleteItemId] = useState("");
   const [dateRange, setDateRange] = useState([]);
-
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -53,11 +49,6 @@ const UserManagement = () => {
       return itemDate >= start && itemDate <= end;
     });
   };
-
-  useEffect(() => {
-    if (hasAuthSession()) dispatch(checkUser());
-    else navigate("/");
-  }, [dispatch, navigate]);
 
   useEffect(() => {
     dispatch(getAllFirms());
@@ -105,7 +96,6 @@ const UserManagement = () => {
 
   const totalPages = Math.ceil(sortedData?.length / itemsPerPage);
 
-
   const handleAccessUpdate = (status, id) => {
     const newStatus = status ? "denied" : "granted";
     setUserAccsess({ id, access_status: newStatus });
@@ -120,16 +110,6 @@ const UserManagement = () => {
     "plan_name",
     "access_status",
   ];
-
-  // const formattedUsers = usersData?.map((user) => {
-  //   const filtered = {};
-  //   requiredKeys.forEach((key) => {
-  //     if (key === "sign_up_date") {
-  //       filtered[key] = new Date(user[key]).toISOString().split("T")[0];
-  //     } else filtered[key] = user[key];
-  //   });
-  //   return filtered;
-  // });
 
   const formattedUsers = usersData?.map((user) => {
     const filtered = {};
@@ -190,8 +170,14 @@ const UserManagement = () => {
                       style={{ zIndex: 1 }}
                     />
                     <DesignerDateRangePicker
-                      onApply={handleApply}
-                      onCancel={handleCancel}
+                      onApply={(value) => {
+                        setDateRange(value);
+                        handleApply(value);
+                      }}
+                      onCancel={() => {
+                        setDateRange([]);
+                        handleCancel();
+                      }}
                       placeholder="Sign Up Date Range"
                     />
                   </label>

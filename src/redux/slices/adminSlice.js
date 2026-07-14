@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import * as api from "../Api.js";
-import { clearAuthSession, hasAuthSession, storeAuthSession } from "../../utils/authStorage.js";
+
 
 // Utility to check if we're in the browser environment
 const isBrowser = typeof window != "undefined";
@@ -124,7 +124,7 @@ const authSlice = createSlice({
     allFirmsUsers: [], // Stores all firms/users
     notification: [], // Notifications list
     subscriptions: [], // Subscription data
-    userLogedOut: isBrowser ? !hasAuthSession() : true,
+    userLogedOut: true,
     error: null, // Error state
     message: null, // Optional messages
   },
@@ -143,7 +143,7 @@ const authSlice = createSlice({
 
         if (typeof window != "undefined") {
           if (action?.payload?.role == "superadmin") {
-            storeAuthSession(action.payload);
+
           } else {
             toast.error("Invalid Credential");
           }
@@ -165,11 +165,11 @@ const authSlice = createSlice({
         state.userLogedOut = false;
         state.loading = false;
 
-        // If not superadmin, force logout
         if (normalizeRole(action?.payload?.user?.role) !== "superadmin") {
           toast.error("session expired, please login again!");
-          clearAuthSession();
-          setTimeout(() => { window.location.replace('/'); }, 1000);
+          if (typeof window != "undefined") {
+            window.dispatchEvent(new Event("auth-expired"));
+          }
         }
       })
       .addCase(checkUser.rejected, (state) => {
@@ -177,8 +177,8 @@ const authSlice = createSlice({
         state.admin = null;
         state.error = null;
         state.userLogedOut = true;
-        clearAuthSession();
       })
+
 
       // 🔹 Get All Firms
       .addCase(getAllFirms.pending, (state) => {
@@ -198,9 +198,8 @@ const authSlice = createSlice({
         state.userLogedOut = true;
         if (typeof window != "undefined") {
           toast.error("session expired, please login again!");
-          clearAuthSession();
+          window.dispatchEvent(new Event("auth-expired"));
         }
-        setTimeout(() => { window.location.replace('/'); }, 1000);
       })
 
       // 🔹 Add Firm
@@ -246,4 +245,7 @@ const authSlice = createSlice({
 });
 
 export default authSlice.reducer;
+
+
+
 

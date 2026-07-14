@@ -1,14 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import * as api from "../Api.js";
-import { clearAuthSession } from "../../utils/authStorage.js";
 
 function logouterror() {
   toast.error("Token Expired");
-  clearAuthSession();
-  setTimeout(() => {
-    window.location.replace("/");
-  }, 1000);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("auth-expired"));
+  }
 }
 
 export const getAllUser = createAsyncThunk("user/getAllUser", async (_, { rejectWithValue }) => {

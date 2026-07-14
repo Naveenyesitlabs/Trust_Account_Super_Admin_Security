@@ -4,23 +4,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { login } from '../redux/slices/adminSlice';
-import { clearRememberedEmail, getRememberedEmail, storeRememberedEmail } from '../utils/authStorage';
 
 const Login = () => {
   const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.admin);
+  const { admin, loading } = useSelector((state) => state.admin);
   const navigate = useNavigate();
-  const savedEmail = getRememberedEmail();
   const [showModal, setShowModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [keepLoggedIn, setKeepLoggedIn] = useState(Boolean(savedEmail));
-  const loggedInUser = sessionStorage.getItem("trust-superAdmin");
 
   useEffect(() => {
-    if (loggedInUser) setShowModal(true);
-  }, [loggedInUser]);
+    if (admin?.role === "superadmin") {
+      setShowModal(true);
+    }
+  }, [admin]);
 
-  const initialValues = { email: savedEmail, password: '' };
+  const initialValues = { email: '', password: '' };
 
   const validationSchema = Yup.object({
     email: Yup.string().email('Invalid email').required('Email is required'),
@@ -28,12 +26,7 @@ const Login = () => {
   });
 
   const handleSubmit = (values) => {
-    if (keepLoggedIn) {
-      storeRememberedEmail(values.email);
-    } else {
-      clearRememberedEmail();
-    }
-    dispatch(login({ email: values.email, password: values.password, rememberMe: keepLoggedIn }));
+    dispatch(login({ email: values.email, password: values.password, rememberMe: false }));
   };
 
   return (
@@ -95,14 +88,6 @@ const Login = () => {
                   </label>
                   <ErrorMessage name="password" component="span" style={{ color: "red", fontSize: "12px" }} />
 
-                  <div className="rembr-me">
-                    <input
-                      type="checkbox"
-                      checked={keepLoggedIn}
-                      onChange={(e) => setKeepLoggedIn(e.target.checked)}
-                    /> Remember email
-                  </div>
-
                   <button type="submit" className="login-btn" disabled={loading}>
                     {loading ? "Loading..." : "Login"}
                   </button>
@@ -149,4 +134,3 @@ const Login = () => {
 };
 
 export default Login;
-
