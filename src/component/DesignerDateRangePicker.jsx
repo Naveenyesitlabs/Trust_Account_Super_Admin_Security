@@ -1,83 +1,39 @@
-import { useEffect, useRef } from "react";
+import { useState } from "react";
+import { DateRangePicker } from "rsuite";
 
-// DesignerDateRangePicker component wraps a jQuery Date Range Picker for React usage
-// Props:
-// - onApply: callback function when a date range is applied
-// - onCancel: callback function when the picker is cleared/canceled
-// - placeholder: optional placeholder text for the input
 const DesignerDateRangePicker = ({ onApply, onCancel, placeholder }) => {
-  // Ref to access the input element directly for jQuery plugin
-  const inputRef = useRef(null);
+  const [value, setValue] = useState(null);
 
-  useEffect(() => {
-    // Ensure jQuery ($) and daterangepicker plugin are loaded
-    if (window.$ && window.$.fn.daterangepicker) {
-      const $ = window.$;
+  const handleChange = (nextValue) => {
+    setValue(nextValue);
 
-      // Wrap the input DOM element with jQuery
-      const input = $(inputRef.current);
-
-      // Initialize daterangepicker on the input element
-      input.daterangepicker(
-        {
-          autoUpdateInput: false, // Prevent automatic input update, we handle manually
-          locale: {
-            cancelLabel: "Clear", // Label for cancel button
-          },
-        },
-        function (start, end) {
-          // Optional callback when selecting a date range
-          // Manually update input display
-          input.val(`${start.format("MM/DD/YYYY")} - ${end.format("MM/DD/YYYY")}`);
-        }
-      );
-
-      // Event handler for Apply action
-      input.on("apply.daterangepicker", function (ev, picker) {
-        // Call onApply callback with JavaScript Date objects
-        if (onApply) {
-          onApply([picker.startDate.toDate(), picker.endDate.toDate()]);
-        }
-        // Update input field to show selected date range
-        input.val(`${picker.startDate.format("MM/DD/YYYY")} - ${picker.endDate.format("MM/DD/YYYY")}`);
-      });
-
-      // Event handler for Cancel/Clear action
-      input.on("cancel.daterangepicker", function () {
-        // Call onCancel callback if provided
-        if (onCancel) {
-          onCancel();
-        }
-        // Clear input display
-        input.val("");
-      });
-
-      // Cleanup function to remove daterangepicker when component unmounts
-      return () => {
-        input.data("daterangepicker")?.remove();
-      };
+    if (!nextValue || nextValue.length === 0) {
+      onCancel?.();
+      return;
     }
-  }, [onApply, onCancel]); // Re-run effect if onApply or onCancel changes
+
+    if (nextValue[0] && nextValue[1]) {
+      onApply?.(nextValue);
+    }
+  };
 
   return (
-    <>
-      {/* Container label for styling */}
-      <label className="daterange-btn">
-        {/* Optional icon */}
-        <img src="/images/filter-icons/date.svg" alt="" />
-        {/* Input field connected to jQuery Date Range Picker */}
-        <input
-          type="text"
-          readOnly // Prevent manual input, only allow picker selection
-          className="input"
-          name="datefilter"
-          placeholder={placeholder || "Sign Up Date Range"} // Default placeholder
-          ref={inputRef} // Attach ref for jQuery plugin
-        />
-      </label>
-    </>
+    <DateRangePicker
+      value={value}
+      onChange={handleChange}
+      onClean={() => {
+        setValue(null);
+        onCancel?.();
+      }}
+      editable={false}
+      cleanable
+      format="MM/dd/yyyy"
+      placement="bottomEnd"
+      character=" - "
+      placeholder={placeholder || "Sign Up Date Range"}
+      className="input"
+    />
   );
 };
 
-// Export component for usage in forms or filters
 export default DesignerDateRangePicker;

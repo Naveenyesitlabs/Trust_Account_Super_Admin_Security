@@ -1,33 +1,23 @@
-// PaginationControls component displays pagination links and info
-// Props:
-// - currentPage: current active page number
-// - totalPages: total number of pages
-// - pageSize: number of items per page
-// - totalItems: total number of items
-// - onPageChange: callback function when page is changed
 const PaginationControls = ({ currentPage, totalPages, pageSize, totalItems, onPageChange }) => {
-    // Create an array of page numbers [1, 2, ..., totalPages]
     const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
 
-    // Calculate the start and end item numbers for the current page
     const start = (currentPage - 1) * pageSize + 1;
     const end = Math.min(currentPage * pageSize, totalItems);
 
     return (
         <div className="influ-pagi">
             <ul>
-                {/* Previous page button */}
                 <li>
                     <button
                         type="button"
                         onClick={() => onPageChange(currentPage - 1)}
                         disabled={currentPage === 1}
+                        aria-label="Previous page"
                     >
-                        <i className="fas fa-chevron-left"></i>
+                        <span aria-hidden="true">&#8249;</span>
                     </button>
                 </li>
 
-                {/* Page number buttons */}
                 {pages.map((page) => (
                     <li key={page} className={page === currentPage ? 'active' : ''}>
                         <button type="button" onClick={() => onPageChange(page)}>
@@ -36,19 +26,18 @@ const PaginationControls = ({ currentPage, totalPages, pageSize, totalItems, onP
                     </li>
                 ))}
 
-                {/* Next page button */}
                 <li>
                     <button
                         type="button"
                         onClick={() => onPageChange(currentPage + 1)}
                         disabled={currentPage === totalPages}
+                        aria-label="Next page"
                     >
-                        <i className="fas fa-chevron-right"></i>
+                        <span aria-hidden="true">&#8250;</span>
                     </button>
                 </li>
             </ul>
 
-            {/* Display info about the range of items currently shown */}
             <p>
                 Showing {totalItems === 0 ? 0 : `${start}–${end}`} of {totalItems} results
             </p>
@@ -56,5 +45,4 @@ const PaginationControls = ({ currentPage, totalPages, pageSize, totalItems, onP
     )
 }
 
-// Export component for use in paginated lists
 export default PaginationControls;

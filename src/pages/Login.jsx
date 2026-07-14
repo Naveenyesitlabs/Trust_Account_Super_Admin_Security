@@ -38,8 +38,6 @@ const Login = () => {
 
   return (
     <>
-      
-
       <div className="login-wrap">
         <div className="login-in">
           <div className="login-logo">
@@ -83,9 +81,17 @@ const Login = () => {
                       placeholder="Enter your Password"
                       autoComplete="new-password"
                     />
-                    <div className="password-eye" onClick={() => setShowPassword(!showPassword)}>
-                      <i className="fas fa-eye-slash" id="eye"></i>
-                    </div>
+                    <button
+                      type="button"
+                      className="password-eye"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      <img
+                        src={showPassword ? "images/login-page/icons/eye-close.svg" : "images/login-page/icons/eye-open.svg"}
+                        alt=""
+                      />
+                    </button>
                   </label>
                   <ErrorMessage name="password" component="span" style={{ color: "red", fontSize: "12px" }} />
 
